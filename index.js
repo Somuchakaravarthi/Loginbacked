@@ -3,45 +3,14 @@ const express = require('express');
 const app = express();
 const port = 4000;
 const cors = require('cors');
-const nodemailer = require('nodemailer');
+
 const corsOptions = {
   origin: 'http://localhost:3001', // Replace with your frontend URL
   optionsSuccessStatus: 200 // Some legacy browsers (IE11, various SmartTVs) choke on 204
 };
 const db = require('./db');
 const { password } = require('./dbConfig');
-const generateOtp = () => {
-  return Math.floor(100000 + Math.random() * 900000).toString(); // Generate a 6-digit OTP
-};
-const transporter = nodemailer.createTransport({
-  host:'smtp.gmail.com',
-  port:465,
-  secure:true,
-  auth: {
-    user: process.env.EMAIL,
-    pass:'tblqfezxmvddrdtr'
-  }
-});
-transporter.sendMail({
-  to:'jjshree831@gmail.com',
-  subject:'Vanakkam',
-  html:'<h1>Hlooo Elukalutha </h1>'
-}).then(()=>{
-  console.log('email sent');
-}).catch(err=>{
-  console.log(err);
-})
 
-const sendOtpEmail = async (email, otp) => {
-  const mailOptions = {
-    from: process.env.EMAIL,
-    to: email,
-    subject: 'Your OTP Code',
-    text: `Your OTP code is ${otp}`,
-  };
-
-  await transporter.sendMail(mailOptions);
-};
 app.use(express.json());
 app.use(cors(corsOptions));
 app.get('/', async (req, res) => {
@@ -93,25 +62,6 @@ app.post('/login',async(req,res)=>{
     }
 })
 
-// app.post('/add-user', async (req, res) => {
-//   try {
-//     console.log('Request body:', req.body); // Log the request body
-
-//     const { name, password, email } = req.body;
-
-//     if (!name || !password || !email) {
-//       return res.status(400).send('Name, password, and email are required.');
-//     }
-
-//     console.log('Received data:', { name, password, email });
-
-//     await db.addUser(name, password, email);
-//     res.status(201).send('User added successfully');
-//   } catch (err) {
-//     console.error('Error adding user:', err);
-//     res.status(500).send(`Error adding user: ${err.message}`);
-//   }
-// });
 app.post('/send-otp', async (req, res) => {
   const { email } = req.body;
 
@@ -119,9 +69,9 @@ app.post('/send-otp', async (req, res) => {
     return res.status(400).send('Email is required');
   }
 
-  const otp = generateOtp();
+  const otp = await db.generateOtp();
   try {
-    await sendOtpEmail(email, otp);
+    await db.sendOtpEmail(email, otp);
     res.status(200).send('OTP sent successfully');
   } catch (error) {
     console.error('Error sending OTP:', error);

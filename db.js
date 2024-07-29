@@ -1,6 +1,6 @@
 const sql = require('mssql');
 const config = require('./dbConfig');
-
+const nodemailer = require('nodemailer');
 async function getUsers() {
   try {
     console.log('Config:', config); // Log configuration for debugging
@@ -55,10 +55,39 @@ async function emailExists(email){
         throw err;
     }
 }
+async function sendOtpEmail(email,otp){
+  try{
+     const mailOptions = {
+    from: process.env.EMAIL,
+    to:email,
+    subject: 'Your OTP Code',
+    text: `Your OTP code is ${otp}`,
+  };
+  const transporter = nodemailer.createTransport({
+  host:'smtp.gmail.com',
+  port:465,
+  secure:true,
+  auth: {
+    user: process.env.EMAIL,
+    pass:'tblqfezxmvddrdtr'
+  }
+});
+   await  transporter.sendMail(mailOptions);
+  }catch(err){
+    throw err;
+  }
+}
+async function generateOtp(){
+return Math.floor(100000 + Math.random() * 900000).toString();
+}
+
+
 module.exports = {
   getUsers,
   addUser,
   userExists,
   emailExists,
-  login
+  login,
+  generateOtp,
+  sendOtpEmail
 };

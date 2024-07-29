@@ -14,34 +14,23 @@ const generateOtp = () => {
   return Math.floor(100000 + Math.random() * 900000).toString(); // Generate a 6-digit OTP
 };
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
+  host:'smtp.gmail.com',
+  port:465,
+  secure:true,
   auth: {
-    type: 'OAuth2',
     user: process.env.EMAIL,
-    clientId: process.env.CLIENT_ID,
-    clientSecret: process.env.CLIENT_SECRET,
-    refreshToken: process.env.REFRESH_TOKEN,
-  },
+    pass:'tblqfezxmvddrdtr'
+  }
 });
-
-// const sendOtpEmail = async (email, otp) => {
-//   let transporter = nodemailer.createTransport({
-//     service: 'gmail',
-//     auth: {
-//       user: 'somuchakaravarthi@gmail.com',
-//       pass: 'Krcselvi@123',
-//     },
-//   });
-
-//   let mailOptions = {
-//     from: 'somuchakaravarthi@gmail.com',
-//     to: email,
-//     subject: 'Your OTP Code',
-//     text: `Your OTP code is ${otp}`,
-//   };
-
-//   await transporter.sendMail(mailOptions);
-// };
+transporter.sendMail({
+  to:'jjshree831@gmail.com',
+  subject:'Vanakkam',
+  html:'<h1>Hlooo Elukalutha </h1>'
+}).then(()=>{
+  console.log('email sent');
+}).catch(err=>{
+  console.log(err);
+})
 
 const sendOtpEmail = async (email, otp) => {
   const mailOptions = {
